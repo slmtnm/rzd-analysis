@@ -1,6 +1,6 @@
 import httpx
+from time import sleep
 from enum import Enum
-from fake_useragent import UserAgent
 
 
 TIMETABLE_ADDRESS = 'https://pass.rzd.ru/timetable/public/ru'
@@ -38,7 +38,6 @@ def train_routes(*,
         vehicle: Vehicle = Vehicle.TRAIN,
         check_seats: bool = True,
         with_transfers: bool = True) -> str:
-    ''''''
     params={
         'layer_id': Layer.ROUTE_SELECTION.value,
         'dir': dir.value,
@@ -56,21 +55,10 @@ def train_routes(*,
         result = client.get(TIMETABLE_ADDRESS, params=params).json()
         if result['result'] != 'RID':
             raise RuntimeError(f'Invalid response from server\n{result}')
+
+        sleep(2) # magic sleep
         
-        rid: int = result['RID']
-        params = {
-            'layer_id': Layer.ROUTE_SELECTION.value,
-            'rid': str(rid),
-        }
-        u = UserAgent(cache=False).chrome
+        params['rid'] = result['RID']
         return client.get(TIMETABLE_ADDRESS, params=params, headers={
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'User-Agent': u,
-            'Host': 'pass.rzd.ru',
-            'Sec-Fetch-Dest': 'document',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'none',
-            'Sec-Fetch-User': '?1',
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:93.0) Gecko/20100101 Firefox/93.0',
         }).json()

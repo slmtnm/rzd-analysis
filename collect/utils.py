@@ -59,6 +59,4 @@ def train_routes(*,
         sleep(2) # magic sleep
         
         params['rid'] = result['RID']
-        return client.get(TIMETABLE_ADDRESS, params=params, headers={
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:93.0) Gecko/20100101 Firefox/93.0',
-        }).json()
+        return client.get(TIMETABLE_ADDRESS, params=params).json()

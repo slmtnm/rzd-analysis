@@ -5,10 +5,7 @@ name = "pypi"
 
 [packages]
 httpx = "*"
-fake-useragent = "*"
-user-agent = "*"
 
 [dev-packages]
 mypy = "*"
 autopep8 = "*"
-ipython = "*"

@@ -39,7 +39,7 @@ def train_routes(*,
         vehicle: Vehicle = Vehicle.TRAIN,
         check_seats: bool = True,
         with_transfers: bool = True) -> str:
-    params: dict[str, int | str] ={
+    params: dict[str, int | str] = {
         'layer_id': Layer.ROUTE_SELECTION.value,
         'dir': dir.value,
         'tfl': vehicle.value,
@@ -61,3 +61,22 @@ def train_routes(*,
         sleep(3) # magic sleep
         
         return client.get(TIMETABLE_ADDRESS, params=params).json()['tp']
+
+
+def station_code(station_name: str) -> int:
+    with httpx.Client() as client:
+        response = client.get(SUGGSTION_ADDRESS, params={
+            'compatMode': 'y',
+            'lang': 'ru',
+            'stationNamePart': station_name.upper(),
+        })
+
+        if not response.content:
+            raise RuntimeError(
+                f'Empty reply from server (possibly invalid station name')
+
+        match [s['c'] for s in response.json() if s['n'] == station_name.upper()]:
+            case [code]:
+                return code
+            case _:
+                raise RuntimeError(f'Invalid response from server:\n{response}')

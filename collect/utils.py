@@ -1,6 +1,7 @@
-import httpx
-from time import sleep
 from enum import Enum
+from time import sleep
+
+import httpx
 
 
 TIMETABLE_ADDRESS = 'https://pass.rzd.ru/timetable/public/ru'
@@ -31,20 +32,20 @@ class Layer(Enum):
 
 
 def train_routes(*, 
-        departure_station_code: str,
-        destination_station_code: str,
+        from_code: str,
+        where_code: str,
         date: str,
         dir: Direction = Direction.ROUNDTRIP,
         vehicle: Vehicle = Vehicle.TRAIN,
         check_seats: bool = True,
         with_transfers: bool = True) -> str:
-    params={
+    params: dict[str, int | str] ={
         'layer_id': Layer.ROUTE_SELECTION.value,
         'dir': dir.value,
         'tfl': vehicle.value,
         'checkSeats': int(check_seats),
-        'code0': departure_station_code,
-        'code1': destination_station_code,
+        'code0': from_code,
+        'code1': where_code,
         'dt0': date,
         'md': int(with_transfers)
     }
@@ -54,9 +55,9 @@ def train_routes(*,
     with httpx.Client() as client:
         result = client.get(TIMETABLE_ADDRESS, params=params).json()
         if result['result'] != 'RID':
-            raise RuntimeError(f'Invalid response from server\n{result}')
-
-        sleep(2) # magic sleep
-        
+            raise RuntimeError(f'Invalid response from server:\n{result}')
         params['rid'] = result['RID']
-        return client.get(TIMETABLE_ADDRESS, params=params).json()
+
+        sleep(3) # magic sleep
+        
+        return client.get(TIMETABLE_ADDRESS, params=params).json()['tp']

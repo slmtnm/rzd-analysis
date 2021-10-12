@@ -1,0 +1,17 @@
+name: Lint and test python code
+on: [push]
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.10.0'
+          architecture: 'x64'
+      - run: pip install pipenv
+      - run: pipenv install -d
+      - name: Run mypy
+        run: pipenv run mypy -m collect && pipenv run mypy -m tests
+      - name: Run tests
+        run: pipenv run pytest

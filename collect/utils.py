@@ -6,6 +6,7 @@ import httpx
 
 TIMETABLE_ADDRESS = 'https://pass.rzd.ru/timetable/public/ru'
 SUGGSTION_ADDRESS = 'https://pass.rzd.ru/suggester'
+TIMEOUT = 60
 
 
 class Direction(Enum):
@@ -52,7 +53,7 @@ def train_routes(*,
     if not check_seats:
         params['withoutSeats'] = 0
     
-    with httpx.Client() as client:
+    with httpx.Client(timeout=TIMEOUT) as client:
         result = client.get(TIMETABLE_ADDRESS, params=params).json()
         if result['result'] != 'RID':
             raise RuntimeError(f'Invalid response from server:\n{result}')
@@ -64,7 +65,7 @@ def train_routes(*,
 
 
 def station_code(station_name: str) -> int:
-    with httpx.Client() as client:
+    with httpx.Client(timeout=TIMEOUT) as client:
         response = client.get(SUGGSTION_ADDRESS, params={
             'compatMode': 'y',
             'lang': 'ru',

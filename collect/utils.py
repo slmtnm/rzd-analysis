@@ -1,5 +1,5 @@
 from enum import Enum
-from time import sleep
+from asyncio import sleep
 
 import httpx
 
@@ -32,7 +32,7 @@ class Layer(Enum):
     ROUTE_INFO = 5804
 
 
-def train_routes(*, 
+async def train_routes(*, 
         from_code: str,
         where_code: str,
         date: str,
@@ -53,20 +53,23 @@ def train_routes(*,
     if not check_seats:
         params['withoutSeats'] = 0
     
-    with httpx.Client(timeout=TIMEOUT) as client:
-        result = client.get(TIMETABLE_ADDRESS, params=params).json()
-        if result['result'] != 'RID':
-            raise RuntimeError(f'Invalid response from server:\n{result}')
-        params['rid'] = result['RID']
+    async with httpx.AsyncClient(timeout=TIMEOUT) as client:
+        response = await client.get(TIMETABLE_ADDRESS, params=params)
+        content = response.json()
+        if content['result'] != 'RID':
+            raise RuntimeError(f'Invalid response from server:\n{content}')
+        params['rid'] = content['RID']
 
-        sleep(3) # magic sleep
+        await sleep(3) # magic sleep
         
-        return client.get(TIMETABLE_ADDRESS, params=params).json()['tp']
+        response = await client.get(TIMETABLE_ADDRESS, params=params)
+        content = response.json()
+        return content['tp']
 
 
-def station_code(station_name: str) -> int:
-    with httpx.Client(timeout=TIMEOUT) as client:
-        response = client.get(SUGGSTION_ADDRESS, params={
+async def station_code(station_name: str) -> int:
+    async with httpx.AsyncClient(timeout=TIMEOUT) as client:
+        response = await client.get(SUGGSTION_ADDRESS, params={
             'compatMode': 'y',
             'lang': 'ru',
             'stationNamePart': station_name.upper(),

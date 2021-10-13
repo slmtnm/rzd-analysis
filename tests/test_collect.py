@@ -4,7 +4,7 @@ from collect.utils import station_code, train_routes, Direction
 
 def test_station_code():
     assert station_code('Санкт-Петербург') == 2004000
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ValueError):
         station_code('Неверное название')
 
 

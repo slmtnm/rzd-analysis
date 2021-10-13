@@ -73,11 +73,13 @@ def station_code(station_name: str) -> int:
         })
 
         if not response.content:
-            raise RuntimeError(
+            raise ValueError(
                 f'Empty reply from server (possibly invalid station name')
 
         match [s['c'] for s in response.json() if s['n'] == station_name.upper()]:
             case [code]:
                 return code
+            case []:
+                raise ValueError(f'Could not find station name')
             case _:
                 raise RuntimeError(f'Invalid response from server:\n{response}')

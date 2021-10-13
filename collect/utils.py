@@ -32,7 +32,8 @@ class Layer(Enum):
     ROUTE_INFO = 5804
 
 
-async def request(client: httpx.AsyncClient, *args, **kwargs) -> httpx.Response:
+async def request(client: httpx.AsyncClient,
+                  *args, **kwargs) -> httpx.Response:
     '''httpx request wrapper that handles timeout exceptions'''
     while True:
         try:
@@ -40,7 +41,7 @@ async def request(client: httpx.AsyncClient, *args, **kwargs) -> httpx.Response:
             return response
         except httpx.TimeoutException:
             continue
-        except:
+        except Exception:
             raise
 
 

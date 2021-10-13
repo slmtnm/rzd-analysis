@@ -6,7 +6,7 @@ import httpx
 
 TIMETABLE_ADDRESS = 'https://pass.rzd.ru/timetable/public/ru'
 SUGGSTION_ADDRESS = 'https://pass.rzd.ru/suggester'
-TIMEOUT = 60
+TIMEOUT = 10
 
 
 class Direction(Enum):
@@ -32,6 +32,18 @@ class Layer(Enum):
     ROUTE_INFO = 5804
 
 
+async def request(client: httpx.AsyncClient, *args, **kwargs) -> httpx.Response:
+    '''httpx request wrapper that handles timeout exceptions'''
+    while True:
+        try:
+            response = await client.get(*args, **kwargs)
+            return response
+        except httpx.TimeoutException:
+            continue
+        except:
+            raise
+
+
 async def train_routes(
         from_code: str,
         where_code: str,
@@ -54,7 +66,7 @@ async def train_routes(
         params['withoutSeats'] = 0
 
     async with httpx.AsyncClient(timeout=TIMEOUT) as client:
-        response = await client.get(TIMETABLE_ADDRESS, params=params)
+        response = await request(client, TIMETABLE_ADDRESS, params=params)
         content = response.json()
         if content['result'] != 'RID':
             raise RuntimeError(f'Invalid response from server:\n{content}')
@@ -62,14 +74,14 @@ async def train_routes(
 
         await sleep(3)  # magic sleep
 
-        response = await client.get(TIMETABLE_ADDRESS, params=params)
+        response = await request(client, TIMETABLE_ADDRESS, params=params)
         content = response.json()
         return content['tp']
 
 
 async def station_code(station_name: str) -> int:
     async with httpx.AsyncClient(timeout=TIMEOUT) as client:
-        response = await client.get(SUGGSTION_ADDRESS, params={
+        response = await request(client, SUGGSTION_ADDRESS, params={
             'compatMode': 'y',
             'lang': 'ru',
             'stationNamePart': station_name.upper(),

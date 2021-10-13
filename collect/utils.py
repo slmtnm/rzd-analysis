@@ -32,7 +32,7 @@ class Layer(Enum):
     ROUTE_INFO = 5804
 
 
-async def train_routes(*, 
+async def train_routes(
         from_code: str,
         where_code: str,
         date: str,
@@ -52,7 +52,7 @@ async def train_routes(*,
     }
     if not check_seats:
         params['withoutSeats'] = 0
-    
+
     async with httpx.AsyncClient(timeout=TIMEOUT) as client:
         response = await client.get(TIMETABLE_ADDRESS, params=params)
         content = response.json()
@@ -60,8 +60,8 @@ async def train_routes(*,
             raise RuntimeError(f'Invalid response from server:\n{content}')
         params['rid'] = content['RID']
 
-        await sleep(3) # magic sleep
-        
+        await sleep(3)  # magic sleep
+
         response = await client.get(TIMETABLE_ADDRESS, params=params)
         content = response.json()
         return content['tp']
@@ -77,14 +77,14 @@ async def station_code(station_name: str) -> int:
 
         if not response.content:
             raise ValueError(
-                f'Empty reply from server (possibly invalid station name')
+                'Empty reply from server (possibly invalid station name)')
 
         codes = [s['c'] for s in response.json()
-            if s['n'] == station_name.upper()]
+                 if s['n'] == station_name.upper()]
         match codes:
             case [code]:
                 return code
             case []:
-                raise ValueError(f'Could not find station name')
+                raise ValueError('Could not find station name')
             case _:
                 raise RuntimeError(f'Invalid response from server:\n{codes}')

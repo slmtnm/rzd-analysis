@@ -11,6 +11,8 @@ jobs:
           architecture: 'x64'
       - run: pip install pipenv
       - run: pipenv install -d
+      - name: Run flake8
+        run: pipenv run flake8
       - name: Run mypy
         run: pipenv run mypy -m collect && pipenv run mypy -m tests
       - name: Run tests

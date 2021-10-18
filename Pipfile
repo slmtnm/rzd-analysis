@@ -5,6 +5,9 @@ name = "pypi"
 
 [packages]
 httpx = "*"
+requests = "*"
+bs4 = "*"
+lxml = "*"
 
 [dev-packages]
 mypy = "*"

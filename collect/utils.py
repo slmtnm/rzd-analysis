@@ -5,7 +5,7 @@ import httpx
 
 
 TIMETABLE_ADDRESS = 'https://pass.rzd.ru/timetable/public/ru'
-SUGGSTION_ADDRESS = 'https://pass.rzd.ru/suggester'
+SUGGESTION_ADDRESS = 'https://pass.rzd.ru/suggester'
 TIMEOUT = 10
 
 
@@ -82,7 +82,7 @@ async def train_routes(
 
 async def station_code(station_name: str) -> int:
     async with httpx.AsyncClient(timeout=TIMEOUT) as client:
-        response = await request(client, SUGGSTION_ADDRESS, params={
+        response = await request(client, SUGGESTION_ADDRESS, params={
             'compatMode': 'y',
             'lang': 'ru',
             'stationNamePart': station_name.upper(),
@@ -115,11 +115,11 @@ async def station_code(station_name: str) -> int:
         match codes:
             case [code]:
                 return code
+            case [code, *_]:
+                raise ValueError('Too many stations found')
             case []:
                 if len(codes_base) > 0:
                     return codes_base[0]
                 raise ValueError('Could not find station name')
-            case [code, *_]:
-                raise ValueError('Too many stations found')
             case _:
                 raise RuntimeError(f'Invalid response from server:\n{codes}')

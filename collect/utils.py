@@ -92,12 +92,34 @@ async def station_code(station_name: str) -> int:
             raise ValueError(
                 'Empty reply from server (possibly invalid station name)')
 
-        codes = [s['c'] for s in response.json()
-                 if s['n'] == station_name.upper()]
+        codes_base = [s['c'] for s in response.json()
+                    if station_name.upper() == s['n']]
+
+        # Found station with city name => get it
+        if len(codes_base) == 1:
+            return codes_base[0]
+
+        # Stations can be name like city_name ПАССАЖИРСКИЙ and so on
+        codes_base = [s['c'] for s in response.json()
+                    if s['n'][:len(station_name)] == station_name.upper()]
+
+        # Usually main stations ended with zero
+        divisor = 1
+        codes = codes_base
+        while len(codes) > 1 and divisor < 10000:
+            divisor *= 10
+            codes = [code for code in codes_base if int(code) % divisor == 0]
+
+        # but not always. then get any station
+
         match codes:
             case [code]:
                 return code
             case []:
+                if len(codes_base) > 0:
+                    return codes_base[0]
                 raise ValueError('Could not find station name')
+            case [code, *tail]:
+                raise ValueError('Too many stations found')
             case _:
                 raise RuntimeError(f'Invalid response from server:\n{codes}')

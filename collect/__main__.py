@@ -1,5 +1,5 @@
 from .utils import train_routes, Direction
-from .city_codes import get_top_cities, get_top_city_codes
+from .city_codes import get_top_cities, get_top_city_codes, save_code_to_json
 from asyncio import run
 
 print('Collecting data...')
@@ -7,6 +7,7 @@ print('Collecting data...')
 with open("city.html") as f:
     cities = get_top_cities(f)
     codes = run(get_top_city_codes(cities))
+    save_code_to_json("codes.json", codes)
 
 #routes = run(train_routes(
 #    from_code='2004000',

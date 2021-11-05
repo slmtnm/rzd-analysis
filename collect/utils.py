@@ -1,5 +1,6 @@
 from enum import Enum
-from asyncio import sleep
+from time import sleep
+from typing import Any
 
 import httpx
 
@@ -32,25 +33,13 @@ class Layer(Enum):
     ROUTE_INFO = 5804
 
 
-async def request(client: httpx.AsyncClient,
-                  *args, **kwargs) -> httpx.Response:
-    '''httpx request wrapper that handles timeout exceptions'''
-    while True:
-        try:
-            response = await client.get(*args, **kwargs)
-            return response
-        except httpx.TimeoutException:
-            continue
-        except Exception:
-            raise
-
-
-async def train_routes(
+def train_routes(
         from_code: str,
         where_code: str,
         date: str,
         dir: Direction = Direction.ROUNDTRIP,
         vehicle: Vehicle = Vehicle.TRAIN,
+        proxies: Any = None,
         check_seats: bool = True,
         with_transfers: bool = True) -> str:
     params: dict[str, int | str] = {
@@ -66,23 +55,24 @@ async def train_routes(
     if not check_seats:
         params['withoutSeats'] = 0
 
-    async with httpx.AsyncClient(timeout=TIMEOUT) as client:
-        response = await request(client, TIMETABLE_ADDRESS, params=params)
+    with httpx.Client(timeout=TIMEOUT, proxies=proxies) as client:
+        response = client.get(TIMETABLE_ADDRESS, params=params)
         content = response.json()
         if content['result'] != 'RID':
             raise RuntimeError(f'Invalid response from server:\n{content}')
         params['rid'] = content['RID']
 
-        await sleep(3)  # magic sleep
+        sleep(2)  # magic sleep
 
-        response = await request(client, TIMETABLE_ADDRESS, params=params)
+        response = client.get(TIMETABLE_ADDRESS, params=params)
         content = response.json()
+
         return content['tp']
 
 
-async def station_code(station_name: str) -> int:
-    async with httpx.AsyncClient(timeout=TIMEOUT) as client:
-        response = await request(client, SUGGESTION_ADDRESS, params={
+def station_code(station_name: str, proxies: Any = None) -> int:
+    with httpx.Client(timeout=TIMEOUT, proxies=proxies) as client:
+        response = client.get(SUGGESTION_ADDRESS, params={
             'compatMode': 'y',
             'lang': 'ru',
             'stationNamePart': station_name.upper(),

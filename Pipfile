@@ -8,6 +8,7 @@ httpx = "*"
 requests = "*"
 bs4 = "*"
 lxml = "*"
+yadisk = "*"
 
 [dev-packages]
 mypy = "*"

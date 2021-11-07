@@ -50,6 +50,7 @@ def train_routes(
         'code0': from_code,
         'code1': where_code,
         'dt0': date,
+        'dt1': date,
         'md': int(with_transfers)
     }
     if not check_seats:

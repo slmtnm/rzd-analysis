@@ -1,7 +1,7 @@
 import json
 import datetime
 from concurrent.futures import ThreadPoolExecutor
-from itertools import combinations
+from itertools import combinations, chain
 from typing import Any
 from pathlib import Path
 
@@ -75,7 +75,7 @@ def collect(date: str, data_dir: str = 'data/'):
 
 def main():
     current_date = datetime.datetime.today()
-    dates = [current_date + datetime.timedelta(days=i) for i in range(91)]
+    dates = [current_date + datetime.timedelta(days=i) for i in chain(range(0, 15), range(25, 35), range(40, 50), range(55, 65), range(85, 91))]
     current_date_string = f'{current_date.day}.{current_date.month}.{current_date.year}'
 
     for date in dates:

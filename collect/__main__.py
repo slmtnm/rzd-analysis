@@ -7,8 +7,8 @@ from pathlib import Path
 
 import yaml
 
-from .proxies import parse_proxies
-from .utils import Direction, train_routes
+from proxies import parse_proxies
+from utils import Direction, train_routes
 
 
 def _fetch(proxy: str, pairs: list, date: str, max_workers=30) -> list[dict[str, Any]]:
@@ -75,7 +75,7 @@ def collect(date: str, data_dir: str = 'data/'):
 
 def main():
     current_date = datetime.datetime.today()
-    dates = [current_date + datetime.timedelta(days=i) for i in chain(range(0, 15), range(25, 35), range(40, 50), range(55, 65), range(85, 91))]
+    dates = [current_date + datetime.timedelta(days=i) for i in chain(range(0, 16), range(25, 36), range(40, 51), range(55, 65), range(85, 91))]
     current_date_string = f'{current_date.day}.{current_date.month}.{current_date.year}'
 
     for date in dates:

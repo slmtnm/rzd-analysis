@@ -9,6 +9,7 @@ requests = "*"
 bs4 = "*"
 lxml = "*"
 yadisk = "*"
+pyyaml = "*"
 
 [dev-packages]
 mypy = "*"

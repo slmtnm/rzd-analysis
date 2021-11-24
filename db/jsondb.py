@@ -1,5 +1,5 @@
 import json
-from db import DataBase
+from db.db import DataBase
 from datetime import date
 from pathlib import Path
 

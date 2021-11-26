@@ -2,17 +2,18 @@ import json
 from db.db import DataBase
 from datetime import date
 from pathlib import Path
+from utils import dmy_from_date
 
 class JSONDataBase(DataBase):
     def __init__(self, path_to_db: str):
         self.__path_to_db = path_to_db
         self.__data = {}
 
-    def __get_file_name(self, today: date, departure_day: date):
-        return Path.cwd() / self.__path_to_db / today.isoformat() / departure_day.isoformat() + '.json'
+    def get_file_name(self, collect_day: date, departure_day: date):
+        return Path.cwd() / self.__path_to_db / dmy_from_date(collect_day) / (dmy_from_date(departure_day) + '.json')
 
-    def __open_json_file(self, today: date, departure_day: date):
-        file_name = self.__get_file_name(today, departure_day)
+    def open_json_file(self, today: date, departure_day: date):
+        file_name = self.get_file_name(today, departure_day)
 
         if self.__data.get(file_name, -1) != -1:
             return self.__data[file_name]

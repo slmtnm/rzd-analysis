@@ -7,8 +7,8 @@ from pathlib import Path
 
 import yaml
 
-from proxies import parse_proxies
-from utils import Direction, train_routes
+from .proxies import parse_proxies
+from .utils import Direction, train_routes
 
 
 def _fetch(proxy: str, pairs: list, date: str, max_workers=30) -> list[dict[str, Any]]:

@@ -26,6 +26,9 @@ def get_cost_date_plot():
                         try:
                             min_cost, max_cost, avg_cost =\
                                 db.get_trip_cost(collect_day, collect_day + timedelta(days=days_to_depart), city_from, city_to, car_type)
+                            # найти макисмальную стоимость на этот поезд за весь период продаж и отнормировать
+                            # возвращать из get_trip_cost словарь {поезд: (мин, макс, срд)}, а не просто мин макс срд
+                            # либо нормировать на вообще максимальную стоимость добраться
                             min_cost_dependence[days_to_depart].append(min_cost)
                         except RuntimeError as e:
                             print('get_trip_cost: error while searching file: ' + str(e))

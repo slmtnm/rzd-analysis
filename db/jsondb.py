@@ -31,26 +31,36 @@ class JSONDataBase(DataBase):
             for train_pair in data:
                 for train in train_pair:
                     # Create map: fromCode -> whereCode
-                    if data_mapped.get(train['fromCode'], -1) == -1:
-                        data_mapped.update({train['fromCode']: {}})
+                    from_code = int(train['fromCode'])
+                    if data_mapped.get(from_code, -1) == -1:
+                        data_mapped.update({from_code: {}})
 
                     # Create map: whereCode -> train
                     #if data_mapped[train['fromCode']].get(train['whereCode'], -1) == -1:
-                    data_mapped[train['fromCode']].update({train['whereCode']: train})
+                    data_mapped[from_code].update({int(train['whereCode']): train})
 
             self.__data.update({file_name: data_mapped})
-            return data
+            return data_mapped
 
-    def get_trip_cost(self, collect_day: date, departure_day: date, from_code: int, to_code: int, car_type: CarType):
+    def get_trip_cost(self, collect_day: date, departure_day: date, from_code: int, to_code: int, train_number: str, car_type: CarType):
         '''
         returns: min cost, max cost, avg cost
         '''
         data = self.open_json_file(collect_day, departure_day)
         train_list = data[from_code][to_code]['list']
 
-        available_costs = np.array([], dtype=int)
-        for train in train_list:
+        available_costs: np.array = np.array([], dtype=int)
+        trains = filter(lambda train: train['number'] == train_number, train_list)
+        for train in trains:
             for car in filter(lambda car: car['type'] == car_type.value, train['cars']):
                 available_costs = np.append(available_costs, int(car['tariff']))
 
+        if available_costs.size == 0:
+            return None 
         return np.min(available_costs), np.max(available_costs), np.average(available_costs)
+
+    def get_train_list(self, collect_day: date, departure_day: date, from_code: int, to_code: int):
+        data = self.open_json_file(collect_day, departure_day)
+        train_list = data[from_code][to_code]['list']
+        #return [train['number'] for train in train_list]
+        return map(lambda train: train['number'], train_list)

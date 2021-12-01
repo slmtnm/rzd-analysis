@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  rabbitmq:
+    image: docker.io/rabbitmq:3.9.10-management
+    hostname: rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - 'rabbitmq_data:/var/lib/rabbitmq'
+volumes:
+  rabbitmq_data:
+    driver: local

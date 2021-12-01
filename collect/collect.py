@@ -1,7 +1,6 @@
 import datetime
 import json
 import pathlib
-import sys
 from threading import Thread
 from time import sleep
 from concurrent.futures import ThreadPoolExecutor
@@ -23,7 +22,7 @@ with open('proxies.txt') as f:
     proxies.append(None)
 
 
-def collect(date: str, from_code: str, where_code: str, proxy: str) -> Any:
+def _fetch(date: str, from_code: str, where_code: str, proxy: str) -> Any:
     params: dict[str, int | str] = {
         'layer_id': 5827,
         'dir': 1,
@@ -60,16 +59,16 @@ def collect(date: str, from_code: str, where_code: str, proxy: str) -> Any:
         return response['tp']
 
 
-def divide_codes(batch_size: int) -> list[list[list[str]]]:
+def _divide_codes(batch_size: int) -> list[list[list[str]]]:
     batches = []
     for i in range(0, len(codes), batch_size):
         batches.append(codes[i:min(i+batch_size, len(codes))])
     return batches
 
 
-def worker(batch, date, proxy):
+def _worker(batch, date, proxy):
     def target(pair):
-        return collect(date, pair[0], pair[1], proxy)
+        return _fetch(date, pair[0], pair[1], proxy)
 
     with ThreadPoolExecutor(max_workers=5) as executor:
         for r in executor.map(target, batch):
@@ -77,29 +76,11 @@ def worker(batch, date, proxy):
                 result.append(r)
 
 
-def main() -> None:
-    if len(sys.argv) < 2:
-        print('Usage: python3 ./collect.py <path to data dir>',
-              file=sys.stderr)
-        exit(1)
-
-    data_dir = sys.argv[1]
+def collect(data_dir: str, dates: list[str]) -> None:
     today = datetime.datetime.today()
     today_str = f'{today.day}.{today.month}.{today.year}'
-    dates = [
-        f'{d.day}.{d.month}.{d.year}' for d in [
-            today + datetime.timedelta(days=i)
-            for i in chain(
-                range(0, 15),
-                range(25, 35),
-                range(40, 50),
-                range(55, 65),
-                range(85, 91)
-            )
-        ]
-    ]
 
-    batches = divide_codes(len(codes) // len(proxies))
+    batches = _divide_codes(len(codes) // len(proxies))
 
     all_processed = True
     for date in dates:
@@ -113,8 +94,9 @@ def main() -> None:
 
         threads = []
         for batch, proxy in zip(batches, proxies):
-            threads.append(Thread(target=worker, args=(batch, date, proxy)))
+            threads.append(Thread(target=_worker, args=(batch, date, proxy)))
 
+        print(f'Start collecting routes for {date}')
         for thread in threads:
             thread.start()
 
@@ -128,7 +110,3 @@ def main() -> None:
 
     if all_processed:
         print('All routes collected for today...')
-
-
-if __name__ == '__main__':
-    main()

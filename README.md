@@ -2,5 +2,5 @@
 
 ## Collection module
 ```console
-$ python3 -m collect
+$ python3 ./collect.py <path to data dir>
 ```

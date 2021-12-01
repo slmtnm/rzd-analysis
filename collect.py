@@ -6,11 +6,12 @@ from threading import Thread
 from time import sleep
 from concurrent.futures import ThreadPoolExecutor
 from itertools import chain
+from typing import Any, Optional, Sequence
 import httpx
 from collections import deque
 
 
-result = deque()
+result: deque = deque()
 
 
 with open('codes.txt') as f:
@@ -18,12 +19,12 @@ with open('codes.txt') as f:
 
 
 with open('proxies.txt') as f:
-    proxies = f.read().split('\n')
+    proxies: list[Optional[str]] = list(f.read().split('\n'))
     proxies.append(None)
 
 
-def collect(date, from_code, where_code, proxy):
-    params = {
+def collect(date: str, from_code: str, where_code: str, proxy: str) -> Any:
+    params: dict[str, int | str] = {
         'layer_id': 5827,
         'dir': 1,
         'tfl': 3,
@@ -59,7 +60,7 @@ def collect(date, from_code, where_code, proxy):
         return response['tp']
 
 
-def divide_codes(batch_size):
+def divide_codes(batch_size: int) -> list[list[list[str]]]:
     batches = []
     for i in range(0, len(codes), batch_size):
         batches.append(codes[i:min(i+batch_size, len(codes))])
@@ -76,7 +77,7 @@ def worker(batch, date, proxy):
                 result.append(r)
 
 
-def main():
+def main() -> None:
     if len(sys.argv) < 2:
         print('Usage: python3 ./collect.py <path to data dir>',
               file=sys.stderr)
@@ -86,16 +87,17 @@ def main():
     today = datetime.datetime.today()
     today_str = f'{today.day}.{today.month}.{today.year}'
     dates = [
-        today + datetime.timedelta(days=i)
-        for i in chain(
-            range(0, 15),
-            range(25, 35),
-            range(40, 50),
-            range(55, 65),
-            range(85, 91)
-        )
+        f'{d.day}.{d.month}.{d.year}' for d in [
+            today + datetime.timedelta(days=i)
+            for i in chain(
+                range(0, 15),
+                range(25, 35),
+                range(40, 50),
+                range(55, 65),
+                range(85, 91)
+            )
+        ]
     ]
-    dates = [f'{d.day}.{d.month}.{d.year}' for d in dates]
 
     batches = divide_codes(len(codes) // len(proxies))
 

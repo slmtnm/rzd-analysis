@@ -1,4 +1,5 @@
 import json
+from typing import overload
 import numpy as np
 from datetime import date
 from db.db import DataBase, CarType
@@ -22,7 +23,7 @@ class JSONDataBase(DataBase):
         file = Path(file_name)
 
         if not file.is_file():
-            raise RuntimeError("File " + file_name + " does not exist")
+            raise RuntimeError("File " + str(file_name) + " does not exist")
 
         with open(file_name, 'r') as f:
             data = json.load(f)
@@ -47,6 +48,13 @@ class JSONDataBase(DataBase):
         returns: min cost, max cost, avg cost
         '''
         data = self.open_json_file(collect_day, departure_day)
+
+        if data.get(from_code, -1) == -1:
+            return None
+
+        if data[from_code].get(to_code, -1) == -1:
+            return None
+
         train_list = data[from_code][to_code]['list']
 
         available_costs: np.array = np.array([], dtype=int)
@@ -61,6 +69,13 @@ class JSONDataBase(DataBase):
 
     def get_train_list(self, collect_day: date, departure_day: date, from_code: int, to_code: int):
         data = self.open_json_file(collect_day, departure_day)
+
+        if data.get(from_code, -1) == -1:
+            return None
+
+        if data[from_code].get(to_code, -1) == -1:
+            return None
+
         train_list = data[from_code][to_code]['list']
         #return [train['number'] for train in train_list]
         return map(lambda train: train['number'], train_list)

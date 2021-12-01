@@ -6,7 +6,7 @@ from threading import Thread
 from time import sleep
 from concurrent.futures import ThreadPoolExecutor
 from itertools import chain
-from typing import Any, Optional, Sequence
+from typing import Any, Optional
 import httpx
 from collections import deque
 

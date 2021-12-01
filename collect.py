@@ -78,20 +78,20 @@ def worker(batch, date, proxy):
 
 def main():
     if len(sys.argv) < 2:
-        print('Usage: python3 ./collect.py <path to data dir>', 
+        print('Usage: python3 ./collect.py <path to data dir>',
               file=sys.stderr)
         exit(1)
 
     data_dir = sys.argv[1]
-    today = datetime.datetime.today() 
+    today = datetime.datetime.today()
     today_str = f'{today.day}.{today.month}.{today.year}'
     dates = [
-        today + datetime.timedelta(days=i) 
+        today + datetime.timedelta(days=i)
         for i in chain(
-            range(0, 15), 
-            range(25, 35), 
-            range(40, 50), 
-            range(55, 65), 
+            range(0, 15),
+            range(25, 35),
+            range(40, 50),
+            range(55, 65),
             range(85, 91)
         )
     ]
@@ -126,6 +126,7 @@ def main():
 
     if all_processed:
         print('All routes collected for today...')
+
 
 if __name__ == '__main__':
     main()

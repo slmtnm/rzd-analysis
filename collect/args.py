@@ -16,7 +16,7 @@ class Arguments:
 
 def parse_arguments() -> Arguments:
     parser = argparse.ArgumentParser(description='Collect routes from RZD',
-        prog='collect')
+                                     prog='collect')
     parser.add_argument(
         '--data_dir',
         default='data',

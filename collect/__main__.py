@@ -1,5 +1,4 @@
-from datetime import datetime, timedelta
-from itertools import chain
+from datetime import datetime
 import pika
 from .args import parse_arguments
 from .collect import collect
@@ -20,7 +19,7 @@ if __name__ == '__main__':
 
             def callback(ch, method, properties, body):
                 collect(arguments.data_dir, [body.decode()])
-                
+
             channel.basic_consume(queue='rzd-analysis',
                                   on_message_callback=callback,
                                   auto_ack=True)

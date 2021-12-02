@@ -10,6 +10,9 @@ bs4 = "*"
 lxml = "*"
 yadisk = "*"
 pika = "*"
+pyspark = "*"
+py4j = "*"
+findspark = "*"
 
 [dev-packages]
 mypy = "*"

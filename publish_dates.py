@@ -15,9 +15,10 @@ def main():
 
         for date in generate_dates():
             channel.basic_publish(exchange='',
-                                routing_key='rzd-analysis',
-                                body=date)
+                                  routing_key='rzd-analysis',
+                                  body=date)
             print(f'published date: {date}')
+
 
 if __name__ == '__main__':
     main()

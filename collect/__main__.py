@@ -1,15 +1,13 @@
-from datetime import datetime
 import pika
 from .args import parse_arguments
 from .collect import collect
 from .dates import generate_dates
 
 
-if __name__ == '__main__':
+def main():
     arguments = parse_arguments()
 
     if arguments.provider_url is None:
-        today = datetime.today()
         collect(arguments.data_dir, generate_dates())
     else:
         parameters = pika.URLParameters(arguments.provider_url)
@@ -25,3 +23,7 @@ if __name__ == '__main__':
                                   auto_ack=True)
             channel.basic_consume
             channel.start_consuming()
+
+
+if __name__ == '__main__':
+    main()

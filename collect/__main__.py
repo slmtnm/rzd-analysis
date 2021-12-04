@@ -1,16 +1,13 @@
-from datetime import datetime, timedelta
-from itertools import chain
 import pika
 from .args import parse_arguments
 from .collect import collect
 from .dates import generate_dates
 
 
-if __name__ == '__main__':
+def main():
     arguments = parse_arguments()
 
     if arguments.provider_url is None:
-        today = datetime.today()
         collect(arguments.data_dir, generate_dates())
     else:
         parameters = pika.URLParameters(arguments.provider_url)
@@ -20,9 +17,13 @@ if __name__ == '__main__':
 
             def callback(ch, method, properties, body):
                 collect(arguments.data_dir, [body.decode()])
-                
+
             channel.basic_consume(queue='rzd-analysis',
                                   on_message_callback=callback,
                                   auto_ack=True)
             channel.basic_consume
             channel.start_consuming()
+
+
+if __name__ == '__main__':
+    main()

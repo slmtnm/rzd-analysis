@@ -1,7 +1,7 @@
 import json
 from typing import overload
 import numpy as np
-from datetime import date
+from datetime import date, datetime
 from db.db import DataBase, CarType
 from pathlib import Path
 from utils import dmy_from_date
@@ -31,7 +31,8 @@ class JSONDataBase(DataBase):
 
             for train_pair in data:
                 for trains in train_pair:
-                    for train in trains['list']:
+                    train_list = list(filter(lambda train: datetime.strptime(train['date0'], '%d.%m.%Y').date() == departure_day, trains['list']))
+                    for train in train_list:
                         # Create list of car types:
                         cars = train['cars'] + (train['seatCars'] if train.get('seatCars', -1) != -1 else [])
                         car_type_list = set(map(lambda car: car['type'], cars))
@@ -44,7 +45,7 @@ class JSONDataBase(DataBase):
 
                     # Create map: whereCode -> train
                     #if data_mapped[train['fromCode']].get(train['whereCode'], -1) == -1:
-                    data_mapped[from_code].update({int(trains['whereCode']): trains})
+                    data_mapped[from_code].update({int(trains['whereCode']): train_list})
 
             self.__data.update({file_name: data_mapped})
             return data_mapped
@@ -61,7 +62,7 @@ class JSONDataBase(DataBase):
         if data[from_code].get(to_code, -1) == -1:
             return None
 
-        train_list = data[from_code][to_code]['list']
+        train_list = data[from_code][to_code]
 
         available_costs: np.array = np.array([], dtype=int)
         trains = filter(lambda train: train['number'] == train_number, train_list)
@@ -85,11 +86,13 @@ class JSONDataBase(DataBase):
         if data[from_code].get(to_code, -1) == -1:
             return None
 
-        train_list = data[from_code][to_code]['list']
+        train_list = data[from_code][to_code]
         train = list(filter(lambda train: train['number'] == train_number, train_list))
         if len(train) != 1:
             raise RuntimeError(f"Train was not found or trains were repeated: {len(train)} trains found")
 
+        if 'car_type_list' not in train[0]:
+            assert False
         return car_type.value in train[0]['car_type_list']
 
 
@@ -102,6 +105,6 @@ class JSONDataBase(DataBase):
         if data[from_code].get(to_code, -1) == -1:
             return None
 
-        train_list = data[from_code][to_code]['list']
+        train_list = data[from_code][to_code]
         #return [train['number'] for train in train_list]
         return map(lambda train: train['number'], train_list)

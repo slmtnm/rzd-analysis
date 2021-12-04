@@ -98,10 +98,7 @@ class JSONDataBase(DataBase):
                            car_type: CarType):
         data = self.open_json_file(collect_day, departure_day)
 
-        if data.get(from_code, -1) == -1:
-            return None
-
-        if data[from_code].get(to_code, -1) == -1:
+        if from_code not in data or to_code not in data[from_code]:
             return None
 
         train_list = data[from_code][to_code]['list']

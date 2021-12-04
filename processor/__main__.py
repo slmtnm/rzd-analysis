@@ -25,12 +25,12 @@ def get_cost_date_plot():
         CarType.PLAZKART: {},
         CarType.LUX: {}
     }
-    for car_type in [CarType.COUPE, CarType.PLAZKART, CarType.LUX]:
+    for car_type in [CarType.COUPE, CarType.PLAZKART, CarType.LUX, CarType.SEAT]:
         # [per day cost dependence] idx: collect day
         per_car_type_cost_dependence = []
         for collect_day in [start_date + timedelta(days=i) for i in range((datetime.today().date() - start_date).days + 1)]:
             # train_no -> {min -> [day]; max -> [day]; avg -> [day]};
-            #     train_biggest_max_min_rel -> {train; max_cost, min_cost; max_min_rel}}
+            #     max_min_rel -> {train; max_cost, min_cost; max_min_rel}}
             per_day_cost_dependence = {}
             for days_to_depart in range(0, days_available + 1):
                 for city_from, city_to in pairs:
@@ -42,6 +42,10 @@ def get_cost_date_plot():
                             continue
 
                         for train in train_list:
+                            # TODO check if this car type exist in this train ('carTypes' key)
+                            if not db.train_has_car_type(\
+                                collect_day, collect_day + timedelta(days=days_to_depart), city_from, city_to, train, car_type):
+                                continue
                             if per_day_cost_dependence.get(train, -1) == -1:
                                 per_day_cost_dependence.update(\
                                     {
@@ -71,6 +75,8 @@ def get_cost_date_plot():
 
             #normalize cost on maximum per train
             for train in per_day_cost_dependence.keys():
+                if train == 'max_min_rel':
+                    continue
                 argmax_cost = np.argmax(per_day_cost_dependence[train]['max'])
                 max_cost = per_day_cost_dependence[train]['max'][argmax_cost]
 

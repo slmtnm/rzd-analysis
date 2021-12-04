@@ -11,7 +11,6 @@ from functools import lru_cache
 class JSONDataBase(DataBase):
     def __init__(self, path_to_db: str):
         self.__path_to_db = path_to_db
-        self.__data: dict[Path, Any] = {}
 
     def get_file_path(self, collect_day: date, departure_day: date) -> Path:
         return (Path.cwd() /

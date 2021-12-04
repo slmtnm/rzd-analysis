@@ -13,6 +13,8 @@ pika = "*"
 pyspark = "*"
 py4j = "*"
 findspark = "*"
+pyyaml = "*"
+numpy = "*"
 
 [dev-packages]
 mypy = "*"

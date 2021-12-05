@@ -26,7 +26,7 @@ class JSONDataBase(DataBase):
         file = self.get_file_path(collect_day, departure_day)
 
         if not file.is_file():
-            raise RuntimeError(f"File {file} does not exist")
+            raise FileExistsError(f"File {file} does not exist")
 
         with open(file, 'r') as f:
             root = json.load(f)
@@ -104,9 +104,11 @@ class JSONDataBase(DataBase):
         train_list = data[from_code][to_code]
         train = [t for t in train_list if t['number'] == train_number]
 
-        if len(train) != 1:
-            raise RuntimeError(f"Train was not found \
-                or trains were repeated: {len(train)} trains found")
+        if len(train) < 1:
+            raise RuntimeError(f"Train was not found")
+
+        if len(train) > 1:
+            print(f'{len(train)} trains were found')
 
         if 'car_type_list' not in train[0]:
             assert False

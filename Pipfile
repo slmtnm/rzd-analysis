@@ -15,6 +15,7 @@ py4j = "*"
 findspark = "*"
 pyyaml = "*"
 numpy = "*"
+matplotlib = "*"
 
 [dev-packages]
 mypy = "*"

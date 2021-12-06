@@ -14,7 +14,10 @@ class Chart:
        'date' - date of departure.
        '''
     points: list[tuple[int, float]]
+
     date: date
+    from_code: int
+    where_code: int
 
 
 def create_chart(
@@ -41,4 +44,4 @@ def create_chart(
             points.append(((departure_date - before_date).days,
                            statistic(tariffs)))
 
-    return Chart(points, departure_date)
+    return Chart(points, departure_date, from_code, where_code)

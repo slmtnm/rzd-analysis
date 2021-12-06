@@ -17,6 +17,7 @@ pyyaml = "*"
 numpy = "*"
 pymongo = "*"
 dnspython = "*"
+matplotlib = "*"
 
 [dev-packages]
 mypy = "*"

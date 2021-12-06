@@ -2,21 +2,22 @@ from pathlib import Path
 from pymongo import MongoClient, database
 from db.jsondatabase import JSONDatabase
 import sys
+from utils import str_date
 
 
-USAGE = 'python3 -m exporter <mongodb-url> <path to json database>'
+USAGE = f'{sys.argv[0]} <mongodb-url> <path to json database>'
 
 
-def structured(connstring, jsondb_path, mongodb: database.Database):
+def structured(jsondb_path: str, mongodb: database.Database):
     jsondb = JSONDatabase(Path(jsondb_path))
 
-    for collect_date in jsondb.available_collect_dates():
+    for collect_date in jsondb.collect_dates():
         collection = mongodb[collect_date]
         if collection.count_documents({}) != 0:
             continue
 
         routes_dicts = []
-        for departure_date in jsondb.available_deparute_dates(collect_date):
+        for departure_date in jsondb.deparute_dates(str_date(collect_date)):
             routes = jsondb.routes(collect_date, departure_date)
             routes_dicts += [r.as_dict() for r in routes]
 
@@ -33,4 +34,4 @@ if __name__ == '__main__':
 
     client = MongoClient(connstring)
     mongodb = client['rzd-analysis']
-    dbname = structured(connstring, jsondb_path, mongodb)
+    dbname = structured(jsondb_path, mongodb)

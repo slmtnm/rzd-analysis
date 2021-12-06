@@ -3,6 +3,14 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Any
 from utils import date_str, str_date
+from enum import Enum
+
+
+class CarType(Enum):
+    COUPE = 'Купе'
+    PLAZKART = 'Плац'
+    LUX = 'Люкс'
+    SEAT = 'Сид'
 
 
 @dataclass

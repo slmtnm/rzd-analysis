@@ -3,6 +3,7 @@ import json
 import pathlib
 from threading import Thread
 from time import sleep
+from utils import read_codes
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Optional
 import httpx
@@ -11,10 +12,7 @@ from collections import deque
 
 result: deque = deque()
 
-
-with open('codes.txt') as f:
-    codes = [line.split() for line in f]
-
+codes = read_codes('codes.txt')
 
 with open('proxies.txt') as f:
     proxies: list[Optional[str]] = list(f.read().split('\n'))

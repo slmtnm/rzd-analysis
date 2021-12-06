@@ -8,24 +8,24 @@ from utils import read_codes, str_date
 import sys
 
 
-USAGE = f'Usage: {sys.argv[0]} <departure date> <tariff|seats>'
+USAGE = f'Usage: {sys.argv[0]} <path to data dir> <departure date> <tariff|seats>'
 
 
 def main() -> None:
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 4:
         print(USAGE, file=sys.stderr)
         exit(1)
 
-    departure_date = str_date(sys.argv[1])
-    if sys.argv[2] == 'tariff':
+    departure_date = str_date(sys.argv[2])
+    if sys.argv[3] == 'tariff':
         def car_key(car): return car.tariff
-    elif sys.argv[2] == 'seats':
+    elif sys.argv[3] == 'seats':
         def car_key(car): return car.free_seats
     else:
         print(USAGE, file=sys.stderr)
         exit(1)
 
-    db = JSONDatabase(Path('/home/makar/yd/rzd-analysis'))
+    db = JSONDatabase(Path(sys.argv[1]))
     codes = read_codes('codes.txt')
 
     max_chart = None

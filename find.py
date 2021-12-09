@@ -1,6 +1,6 @@
 from pprint import pprint
 from pathlib import Path
-from db.jsondatabase import JSONDatabase
+from database.jsondatabase import JSONDatabase
 import sys
 
 USAGE = f'{sys.argv[0]} <path to data directory>'

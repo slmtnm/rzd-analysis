@@ -1,6 +1,6 @@
 from datetime import date
 from pymongo import MongoClient
-from db.models import Route
+from database.models import Route
 from utils import date_str, str_date
 from .database import Database
 

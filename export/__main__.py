@@ -1,6 +1,6 @@
 from pathlib import Path
 from pymongo import MongoClient, database
-from db.jsondatabase import JSONDatabase
+from database.jsondatabase import JSONDatabase
 import sys
 from utils import str_date
 

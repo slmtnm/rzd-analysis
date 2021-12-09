@@ -1,6 +1,6 @@
 from pathlib import Path
 from datetime import date
-from db.jsondatabase import JSONDatabase
+from database.jsondatabase import JSONDatabase
 
 
 def test_filename():

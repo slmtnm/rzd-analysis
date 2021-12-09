@@ -6,6 +6,8 @@ from processor.chart import create_chart, Chart
 from db.jsondatabase import JSONDatabase
 from utils import read_codes, str_date
 import sys
+from .chart import plot
+import yaml
 
 
 USAGE = f'Usage: {sys.argv[0]} <path to data dir> <departure date> <tariff|seats>'
@@ -29,16 +31,10 @@ def main() -> None:
     codes = read_codes('codes.txt')
 
     charts: list[tuple[Chart, float]] = []
-    from_code = 2000000
-    to_code = 2004000
-    chart = create_chart(db, departure_date, from_code,
-                         to_code, CarType.PLAZKART, car_key,
-                         statistics.mean)
-    print(f'Spb-Msk {chart}')
     
     for from_code, where_code in codes:
         chart = create_chart(db, departure_date, from_code,
-                             where_code, CarType.PLAZKART, car_key,
+                             where_code, CarType.COUPE, car_key,
                              statistics.mean)
         if not chart.points:
             continue
@@ -53,6 +49,12 @@ def main() -> None:
     print(f'Chart with lowest ratio: {charts[0]}')
     print(f'Chart with highest ratio: {charts[-1]}')
     print(f'Median chart: {charts[len(charts) // 2]}')
+
+    cities = yaml.safe_load(open('codes.yaml'))
+    city_from = [el['city'] for el in cities if el['code'] == charts[0].from_code][0]
+    city_to = [el['city'] for el in cities if el['code'] == charts[0].where_code][0]
+
+    plot(charts[0], f'{charts[0].date.strftime("%d.%m.%Y")}. {city_from.title()} - {city_to.title()}')
 
 
 if __name__ == '__main__':

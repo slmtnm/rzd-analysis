@@ -51,10 +51,10 @@ def main() -> None:
     print(f'Median chart: {charts[len(charts) // 2]}')
 
     cities = yaml.safe_load(open('codes.yaml'))
-    city_from = [el['city'] for el in cities if el['code'] == charts[0].from_code][0]
-    city_to = [el['city'] for el in cities if el['code'] == charts[0].where_code][0]
+    city_from = [el['city'] for el in cities if el['code'] == charts[0][0].from_code][0]
+    city_to = [el['city'] for el in cities if el['code'] == charts[0][0].where_code][0]
 
-    plot(charts[0].points, f'{charts[0].date.strftime("%d.%m.%Y")}. {city_from.title()} - {city_to.title()}',
+    plot(charts[0][0].points, f'{charts[0][0].date.strftime("%d.%m.%Y")}. {city_from.title()} - {city_to.title()}',
     'Количество дней до отправления' if sys.argv[3] == 'tariff' else 'Количество свободных мест'
     if sys.argv[3] == 'seats' else '')
 

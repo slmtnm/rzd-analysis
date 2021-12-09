@@ -2,11 +2,10 @@ import statistics
 from pathlib import Path
 from operator import itemgetter
 from db.models import CarType
-from processor.chart import create_chart, Chart
+from processor.chart import create_chart, Chart, plot
 from db.jsondatabase import JSONDatabase
 from utils import read_codes, str_date
 import sys
-from .chart import plot
 import yaml
 
 
@@ -38,6 +37,7 @@ def main() -> None:
                              statistics.mean)
         if not chart.points:
             continue
+
         _, min_tariff = min(chart.points, key=itemgetter(1))
         _, max_tariff = max(chart.points, key=itemgetter(1))
         ratio = min_tariff / max_tariff
@@ -54,8 +54,8 @@ def main() -> None:
     city_from = [el['city'] for el in cities if el['code'] == charts[0][0].from_code][0]
     city_to = [el['city'] for el in cities if el['code'] == charts[0][0].where_code][0]
 
-    plot(charts[0][0].points, f'{charts[0][0].date.strftime("%d.%m.%Y")}. {city_from.title()} - {city_to.title()}',
-    'Количество дней до отправления' if sys.argv[3] == 'tariff' else 'Количество свободных мест'
+    plot(charts[0][0], f'{charts[0][0].date.strftime("%d.%m.%Y")}. {city_from.title()} - {city_to.title()}',
+    'Стоимость билета' if sys.argv[3] == 'tariff' else 'Количество свободных мест'
     if sys.argv[3] == 'seats' else '')
 
 

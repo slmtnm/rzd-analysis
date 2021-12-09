@@ -48,12 +48,12 @@ def create_chart(
     return Chart(points, departure_date, from_code, where_code)
 
 
-def plot( chart: Chart, title: str ):
+def plot( chart: Chart, title: str, ylabel: str ):
     x = [int(-val[0]) for val in chart.points]                 
-    y = [float(val[1]) for val in chart.points]               
+    y = [int(val[1]) for val in chart.points]               
     plt.plot(x, y, 'o-')
     plt.xlabel('Количество дней до отправления')
-    plt.ylabel('Стоимость билета')
+    plt.ylabel(ylabel)
     plt.title(title)
     plt.xticks(x, [int(-val) for val in x])
     plt.show()

@@ -22,7 +22,8 @@ class JSONDatabase(Database):
     def deparute_dates(self, collect_date: date) -> list[date]:
         return [
             str_date(file.rstrip('.json'))
-            for file in os.listdir(self._path / date_str(collect_date))
+            for file in os.listdir(self._path / date_str(collect_date)) if Path(file).suffix == '.json'\
+                and 'spbmsk' not in file
         ]
 
     @lru_cache

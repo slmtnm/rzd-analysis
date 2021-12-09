@@ -3,6 +3,7 @@ from datetime import date
 from typing import Callable
 from db.database import Database
 from db.models import Car, CarType
+import matplotlib.pyplot as plt
 
 
 @dataclass
@@ -31,8 +32,8 @@ def create_chart(
     collect_dates = sorted(db.collect_dates())
     before_dates = [d for d in collect_dates if d < departure_date]
 
-    if len(before_dates) < 7:
-        raise ValueError(f'Fewer than 7 collect dates before {departure_date}')
+    #if len(before_dates) < 7:
+    #    raise ValueError(f'Fewer than 7 collect dates before {departure_date}')
 
     points = []
     for before_date in before_dates:
@@ -45,3 +46,9 @@ def create_chart(
                            statistic(tariffs)))
 
     return Chart(points, departure_date, from_code, where_code)
+
+
+def plot( chart: Chart ):
+    x = [val[0] for val in chart.points]
+    y = [val[1] for val in chart.points]
+    plt.plot(x, y)

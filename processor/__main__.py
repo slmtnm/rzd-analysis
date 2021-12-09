@@ -29,6 +29,13 @@ def main() -> None:
     codes = read_codes('codes.txt')
 
     charts: list[tuple[Chart, float]] = []
+    from_code = 2000000
+    to_code = 2004000
+    chart = create_chart(db, departure_date, from_code,
+                         to_code, CarType.PLAZKART, car_key,
+                         statistics.mean)
+    print(f'Spb-Msk {chart}')
+    
     for from_code, where_code in codes:
         chart = create_chart(db, departure_date, from_code,
                              where_code, CarType.PLAZKART, car_key,

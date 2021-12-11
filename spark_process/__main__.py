@@ -1,44 +1,19 @@
-import argparse
-from dataclasses import dataclass
-from datetime import date
 from operator import itemgetter
 from pathlib import Path
 
-from pyspark import SparkConf, SparkContext
-from pyspark.sql import SparkSession
-
+from pyspark.conf import SparkConf
 from database.jsondatabase import JSONDatabase
-from database.models import Car, CarType
 from process.chart import Chart, create_chart
-from utils import read_codes, str_date
-
-
-@dataclass
-class Options:
-    data_dir: str
-    departure_date: date
-    type: str
-    appname: str
-
-
-def parse_args() -> Options:
-    parser = argparse.ArgumentParser(
-        description='Find chart with maximum tariff/seats ratio')
-    parser.add_argument('data_dir', help='path to data directory')
-    parser.add_argument('departure_date', help='date when train leaves')
-    parser.add_argument('type', help='characterisic to analyze',
-                        choices=['tariff', 'seats'])
-    parser.add_argument('--appname',
-                        help='name of application to register in Hadoop',
-                        default='rzd-analysis')
-    args = parser.parse_args()
-    return Options(args.data_dir, str_date(args.departure_date),
-                   args.type, args.appname)
+from pyspark.sql import SparkSession
+from pyspark import SparkContext
+from database.models import CarType, Car
+from spark_process.args import parse_args
+from utils import read_codes
 
 
 def code_chunks(filename: str) -> list[list[tuple[int, int]]]:
     codes = read_codes('codes.txt')
-    chunk_size = 40
+    chunk_size = len(codes) // 4
     return [codes[i: i + chunk_size]
             for i in range(0, len(codes), chunk_size)]
 
@@ -65,7 +40,8 @@ def target(db, departure_date, car_key, statistic):
 def main():
     options = parse_args()
 
-    context = SparkContext(conf=SparkConf().setAppName(options.appname))
+    context = SparkContext(conf=SparkConf().setAppName(options.appname).setMaster(options.master_url))
+    # context = SparkContext(master=options.master_url, appName=options.appname)
 
     chunks = code_chunks('codes.txt')
     with SparkSession(context) as _:
@@ -79,6 +55,9 @@ def main():
 
         func = target(JSONDatabase(Path(options.data_dir)),
                       options.departure_date, car_key, min)
+        
+        print(context.parallelize([1,2,3]).map(lambda x: x+1).collect())
+        return
 
         for charts in context.parallelize(chunks).map(func).collect():
             for chart, ratio in charts:

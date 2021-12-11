@@ -1,36 +1,35 @@
 import json
-from datetime import date
 import os
 from .database import Database
 from pathlib import Path
 from .models import Car, Route, Train
 from functools import lru_cache
-from utils import date_str, str_date
+import utils
 
 
 class JSONDatabase(Database):
     def __init__(self, path: Path):
         self._path = path
 
-    def collect_dates(self) -> list[date]:
+    def collect_dates(self) -> list[utils.Date]:
         return [
-            str_date(dirname)
+            utils.Date.from_str(dirname)
             for dirname in os.listdir(self._path)
             if (self._path / dirname).is_dir()
         ]
 
-    def deparute_dates(self, collect_date: date) -> list[date]:
+    def deparute_dates(self, collect_date: utils.Date) -> list[utils.Date]:
         return [
-            str_date(file.rstrip('.json'))
-            for file in os.listdir(self._path / date_str(collect_date))
+            utils.Date.from_str(file.rstrip('.json'))
+            for file in os.listdir(self._path / str(collect_date))
         ]
 
     @lru_cache
     def routes(self,
-               collect_date: date,
-               departure_date: date) -> list[Route]:
-        file = (self._path / date_str(collect_date) /
-                f"{date_str(departure_date)}.json")
+               collect_date: utils.Date,
+               departure_date: utils.Date) -> list[Route]:
+        file = (self._path / str(collect_date) /
+                f"{str(departure_date)}.json")
 
         if not file.is_file():
             raise ValueError(f'File {file} does not exist')
@@ -58,12 +57,14 @@ class JSONDatabase(Database):
                                         free_seats=int(car['freeSeats'])))
                     trains.append(Train(from_code=int(train['code0']),
                                         where_code=int(train['code1']),
-                                        start_date=str_date(train['date0']),
-                                        finish_date=str_date(train['date1']),
+                                        start_date=utils.Date.from_str(
+                                            train['date0']),
+                                        finish_date=utils.Date.from_str(
+                                            train['date1']),
                                         number=train['number'],
                                         cars=cars))
                 routes.append(Route(from_code=route['fromCode'],
                                     where_code=route['whereCode'],
                                     trains=trains,
-                                    date=str_date(route['date'])))
+                                    date=utils.Date.from_str(route['date'])))
         return routes

@@ -18,6 +18,10 @@ numpy = "*"
 pymongo = "*"
 dnspython = "*"
 matplotlib = "*"
+dataclasses-json = "*"
+aio-pika = "*"
+uvloop = "*"
+colorama = "*"
 
 [dev-packages]
 mypy = "*"

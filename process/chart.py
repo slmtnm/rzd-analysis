@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from datetime import date
 from typing import Callable
-from db.database import Database
-from db.models import Car, CarType
+from database.database import Database
+from database.models import Car, CarType
 
 
 @dataclass

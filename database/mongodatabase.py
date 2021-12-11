@@ -1,7 +1,7 @@
 from datetime import date
 from pymongo import MongoClient
-from db.models import Route
-from utils import date_str, str_date
+from database.models import Route
+import utils
 from .database import Database
 
 
@@ -13,12 +13,12 @@ class MongoDatabase(Database):
                collect_date: date | str,
                departure_date: date | str) -> list[Route]:
         if isinstance(collect_date, str):
-            collect_date = str_date(collect_date)
+            collect_date = utils.Date.from_str(collect_date)
 
         if isinstance(departure_date, str):
-            departure_date = str_date(departure_date)
+            departure_date = utils.Date.from_str(departure_date)
 
-        collection = self._mongodb[date_str(collect_date)]
+        collection = self._mongodb[str(collect_date)]
 
         routes = []
         for route_dict in collection.find({}):

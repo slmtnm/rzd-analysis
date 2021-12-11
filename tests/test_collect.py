@@ -1,8 +1,8 @@
-from collect import collect
+from collect import collector
 
 
 def test_train_routes():
-    collect(
+    collector(
         from_code='2004000',
         where_code='2000000',
         date='01.01.2022',

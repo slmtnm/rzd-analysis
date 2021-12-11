@@ -1,9 +1,0 @@
-# global settings
-login: some-login
-password: some-password
-port: 8080
-proto: http
-
-# proxies list
-proxies:
-- ip: 127.0.0.1

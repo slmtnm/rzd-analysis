@@ -1,14 +1,14 @@
 import statistics
 from pathlib import Path
 from operator import itemgetter
-from db.models import CarType
-from processor.chart import create_chart, Chart
-from db.jsondatabase import JSONDatabase
+from database.models import CarType
+from process.chart import create_chart, Chart
+from database.jsondatabase import JSONDatabase
 from utils import read_codes, str_date
 import sys
 
 
-USAGE = f'Usage: {sys.argv[0]} <path to data dir> <departure date> <tariff|seats>'
+USAGE = f'Usage: {sys.argv[0]} <data dir> <departure date> <tariff|seats>'
 
 
 def main() -> None:

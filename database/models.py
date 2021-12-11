@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 from typing import Any
-from utils import date_str, str_date
+import utils
 from enum import Enum
 
 
@@ -53,8 +53,8 @@ class Train:
         return {
             'from_code': self.from_code,
             'where_code': self.where_code,
-            'start_date': date_str(self.start_date),
-            'finish_date': date_str(self.finish_date),
+            'start_date': str(self.start_date),
+            'finish_date': str(self.finish_date),
             'number': self.number,
             'cars': [c.as_dict() for c in self.cars],
         }
@@ -64,8 +64,8 @@ class Train:
         return cls(
             from_code=int(d['from_code']),
             where_code=int(d['where_code']),
-            start_date=str_date(d['start_date']),
-            finish_date=str_date(d['finish_date']),
+            start_date=utils.Date.from_str(d['start_date']),
+            finish_date=utils.Date.from_str(d['finish_date']),
             number=d['number'],
             cars=[Car.from_dict(c) for c in d['cars']],
         )
@@ -83,7 +83,7 @@ class Route:
             'from_code': self.from_code,
             'where_code': self.where_code,
             'trains': [t.as_dict() for t in self.trains],
-            'date': date_str(self.date),
+            'date': str(self.date),
         }
 
     @classmethod
@@ -92,5 +92,5 @@ class Route:
             from_code=int(d['from_code']),
             where_code=int(d['where_code']),
             trains=[Train.from_dict(t) for t in d['trains']],
-            date=str_date(d['date']),
+            date=utils.Date.from_str(d['date']),
         )

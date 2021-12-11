@@ -1,29 +1,18 @@
-import pika
+import asyncio
+
+import uvloop
+
 from .args import parse_arguments
-from .collect import collect
-from .dates import generate_dates
+from .collector import Collector
 
 
-def main():
+async def main():
     arguments = parse_arguments()
-
-    if arguments.provider_url is None:
-        collect(arguments.data_dir, generate_dates())
-    else:
-        parameters = pika.URLParameters(arguments.provider_url)
-        with pika.BlockingConnection(parameters) as connection:
-            channel = connection.channel()
-            channel.queue_declare(queue='rzd-analysis')
-
-            def callback(ch, method, properties, body):
-                collect(arguments.data_dir, [body.decode()])
-
-            channel.basic_consume(queue='rzd-analysis',
-                                  on_message_callback=callback,
-                                  auto_ack=True)
-            channel.basic_consume
-            channel.start_consuming()
+    collector = Collector(arguments.provider_url, 'rzd-analysis',
+                          'files/proxies.yaml', 'files/codes.yaml', None)
+    await collector.run(workers=10)
 
 
 if __name__ == '__main__':
-    main()
+    uvloop.install()
+    asyncio.run(main())

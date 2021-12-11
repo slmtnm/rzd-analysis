@@ -1,6 +1,7 @@
 import pika
+import pickle
 import sys
-from collect.dates import generate_dates
+import utils
 
 
 def main():
@@ -13,11 +14,10 @@ def main():
         channel = connection.channel()
         channel.queue_declare(queue='rzd-analysis')
 
-        for date in generate_dates():
+        for date in utils.Date.today().range(30):
             channel.basic_publish(exchange='',
                                   routing_key='rzd-analysis',
-                                  body=date)
-            print(f'published date: {date}')
+                                  body=pickle.dumps(date))
 
 
 if __name__ == '__main__':

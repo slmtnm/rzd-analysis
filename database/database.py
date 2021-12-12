@@ -1,8 +1,10 @@
-from datetime import date
 from abc import ABCMeta, abstractmethod
+from datetime import date
 from typing import Callable
+
 import utils
-from .models import CarType, Route, Train, Car
+
+from .models import Car, CarType, Route, Train
 
 
 class Database(metaclass=ABCMeta):

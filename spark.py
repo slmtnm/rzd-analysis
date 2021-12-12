@@ -77,7 +77,7 @@ def main():
         else:
             def car_key(car: Car) -> int: return car.free_seats
 
-        func = target(JSONDatabase(Path(options.data_dir)),
+        func = target(JSONDatabase(options.data_dir),
                       options.departure_date, car_key, min)
 
         for charts in context.parallelize(chunks).map(func).collect():

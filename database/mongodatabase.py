@@ -6,8 +6,8 @@ from .database import Database
 
 
 class MongoDatabase(Database):
-    def __init__(self, mongo_uri: str) -> None:
-        self._mongodb = MongoClient(mongo_uri)['rzd-analysis']
+    def __init__(self, mongo_url: str) -> None:
+        self._mongodb = MongoClient(mongo_url)['rzd-analysis']
 
     def routes(self,
                collect_date: date | str,
@@ -25,3 +25,14 @@ class MongoDatabase(Database):
             routes.append(Route.from_dict(route_dict))
 
         return routes
+
+    def store(self, collect_date: utils.Date,
+              routes: list[Route]):
+        collection = self._mongodb[str(collect_date)]
+        collection.insert_many(map(Route.as_dict, routes))
+
+    def collect_dates(self) -> list[utils.Date]:
+        pass
+
+    def deparute_dates(self, collect_date: utils.Date) -> list[utils.Date]:
+        pass

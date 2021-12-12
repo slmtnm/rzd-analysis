@@ -1,15 +1,18 @@
 import json
 import os
-from .database import Database
-from pathlib import Path
-from .models import Car, Route, Train
 from functools import lru_cache
+from pathlib import Path
+from typing import Any
+
 import utils
+
+from .database import Database
+from .models import Car, Route, Train
 
 
 class JSONDatabase(Database):
-    def __init__(self, path: Path):
-        self._path = path
+    def __init__(self, data_dir: str):
+        self._path = Path(data_dir)
 
     def collect_dates(self) -> list[utils.Date]:
         return [
@@ -24,9 +27,18 @@ class JSONDatabase(Database):
             for file in os.listdir(self._path / str(collect_date))
         ]
 
+    def store(self, departure_date: utils.Date, routes: list[Any]):
+        dir = self._path / str(utils.Date.today())
+        fname = str(departure_date) + '.json'
+
+        if not dir.exists():
+            dir.mkdir(parents=True)
+
+        with open(dir / fname, 'w') as f:
+            json.dump(routes, f)
+
     @lru_cache
-    def routes(self,
-               collect_date: utils.Date,
+    def routes(self, collect_date: utils.Date,
                departure_date: utils.Date) -> list[Route]:
         file = (self._path / str(collect_date) /
                 f"{str(departure_date)}.json")

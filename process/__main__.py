@@ -25,7 +25,7 @@ def main() -> None:
         print(USAGE, file=sys.stderr)
         exit(1)
 
-    db = JSONDatabase(Path(sys.argv[1]))
+    db = JSONDatabase(sys.argv[1])
     codes = read_codes('codes.txt')
 
     charts: list[tuple[Chart, float]] = []

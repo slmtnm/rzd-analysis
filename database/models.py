@@ -7,6 +7,11 @@ from enum import Enum
 
 
 class CarType(Enum):
+    """
+    Car type enumeration
+
+    Enum's values are strings that exactly the same as returned from RZD API
+    """
     COUPE = 'Купе'
     PLAZKART = 'Плац'
     LUX = 'Люкс'

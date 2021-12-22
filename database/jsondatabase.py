@@ -11,6 +11,23 @@ from .models import Car, Route, Train
 
 
 class JSONDatabase(Database):
+    """
+    Implementation of database that reads/stores data from local folder
+
+    Structure of that folder ("database") is following:
+    <collect-date1>
+      <departure-date1>.json
+      <departure-date2>.json
+      <departure-date3>.json
+      ...
+    <collect-date2>
+      <departure-date1>.json
+      <departure-date2>.json
+      <departure-date3>.json
+      ...
+    ...
+    """
+
     def __init__(self, data_dir: str):
         self._path = Path(data_dir)
 
@@ -27,7 +44,8 @@ class JSONDatabase(Database):
             for file in os.listdir(self._path / str(collect_date))
         ]
 
-    def store(self, departure_date: utils.Date, routes: list[Any]):
+    def store(self, collect_date: utils.Date,
+              departure_date: utils.Date, routes: list[Any]):
         dir = self._path / str(utils.Date.today())
         fname = str(departure_date) + '.json'
 

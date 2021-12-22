@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from datetime import date
-from typing import Callable
+from typing import Any, Callable
 
 import utils
 
@@ -11,14 +11,34 @@ class Database(metaclass=ABCMeta):
     @abstractmethod
     def routes(self, collect_date: date | str,
                departure_date: date | str) -> list[Route]:
+        """
+        Returns list of routes, collected on *collect_date*
+        and where departure_date is *departure_date*
+        """
         pass
 
     @abstractmethod
     def collect_dates(self) -> list[utils.Date]:
+        """
+        Returns list of available collect dates
+        """
         pass
 
     @abstractmethod
     def deparute_dates(self, collect_date: utils.Date) -> list[utils.Date]:
+        """
+        Return list of available departure dates for routes,
+        collected on *collect_date*
+        """
+        pass
+
+    @abstractmethod
+    def store(self, collect_date: utils.Date, departure_date: utils.Date,
+              routes: list[Any]):
+        """
+        Stores routes that collected on *collect_date* and
+        have departure date *departure_date* in database
+        """
         pass
 
     def trains(self,
@@ -26,13 +46,13 @@ class Database(metaclass=ABCMeta):
                departure_date: date,
                from_code: int,
                where_code: int) -> list[Train]:
-        '''
+        """
         Returns list of trains that go from station with code 'from_code'
         to station with code 'where_code'.
 
         These trains leave at 'departure_date'
         and collected on 'collect_date'.
-        '''
+        """
         routes = self.routes(collect_date, departure_date)
         trains = []
         for route in routes:
@@ -46,14 +66,14 @@ class Database(metaclass=ABCMeta):
                 from_code: int,
                 where_code: int,
                 car_type: CarType) -> list[int]:
-        '''
+        """
         Returns list of tariffs for tickets from station with code 'from_code'
         to station with code 'where_code'.
 
         Trains leave at 'departure_date' and collected on 'collect_date'.
 
         Cars have type 'car_type'.
-        '''
+        """
         return self.car_params(lambda car: car.tariff, collect_date,
                                departure_date, from_code, where_code,
                                car_type)
@@ -64,14 +84,14 @@ class Database(metaclass=ABCMeta):
               from_code: int,
               where_code: int,
               car_type: CarType) -> list[int]:
-        '''
+        """
         Returns list of free seats for tickets from station
-        with code 'from_code' to station with code 'where_code'.
+        with code 'from_code' to station with code 'where_code'
 
-        Trains leave at 'departure_date' and collected on 'collect_date'.
+        Trains leave at 'departure_date' and collected on 'collect_date'
 
-        Cars have type 'car_type'.
-        '''
+        Cars have type 'car_type'
+        """
         return self.car_params(lambda car: car.free_seats, collect_date,
                                departure_date, from_code, where_code,
                                car_type)
@@ -83,6 +103,9 @@ class Database(metaclass=ABCMeta):
                    from_code: int,
                    where_code: int,
                    car_type: CarType) -> list[int]:
+        """
+        Returns list of given car attribute, specified by *key*
+        """
         routes = self.routes(collect_date, departure_date)
         params = []
         for route in routes:

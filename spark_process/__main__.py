@@ -40,7 +40,8 @@ def target(db, departure_date, car_key, statistic):
 def main():
     options = parse_args()
 
-    context = SparkContext(conf=SparkConf().setAppName(options.appname).setMaster(options.master_url))
+    context = SparkContext(conf=SparkConf().setAppName(
+        options.appname).setMaster(options.master_url))
     # context = SparkContext(master=options.master_url, appName=options.appname)
 
     chunks = code_chunks('codes.txt')
@@ -55,8 +56,6 @@ def main():
 
         func = target(JSONDatabase(options.data_dir),
                       options.departure_date, car_key, min)
-        
-        print(context.parallelize([1,2,3]).map(lambda x: x+1).collect())
         return
 
         for charts in context.parallelize(chunks).map(func).collect():

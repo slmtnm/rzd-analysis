@@ -5,7 +5,26 @@ import time
 import aio_pika
 import httpx
 import utils
+from dataclasses import dataclass
 from database.jsondatabase import JSONDatabase
+
+
+@dataclass
+class CollectorStat:
+    total: int
+    succeded: int = 0
+    failed: int = 0
+    started_at: float = time.perf_counter()
+
+    def elapsed(self) -> float:
+        return time.perf_counter() - self.started_at
+
+    def __str__(self) -> str:
+        progress = (self.succeded + self.failed) / self.total
+        return (f'succeded: {self.succeded} '
+                f'failed: {self.failed} '
+                f'progress: {progress * 100:.2f}% '
+                f'elapsed: {self.elapsed():.1f} secs')
 
 
 class Collector:
@@ -32,7 +51,6 @@ class Collector:
         self._amqp_queue = amqp_queue
         self._db = db
 
-        # TODO: consider using only amqp queue without this internal queue
         self.dates_queue: asyncio.Queue[utils.Date] = asyncio.Queue()
 
     async def run(self, workers=15):
@@ -60,16 +78,12 @@ class Collector:
                         tasks = []
                         for i in range(workers * len(self._proxies)):
                             proxy_index = i % len(self._proxies)
-                            task = asyncio.create_task(
+                            tasks.append(asyncio.create_task(
                                 self._worker(self.dates_queue, date,
-                                             self._proxies[proxy_index])
-                            )
-                            tasks.append(task)
+                                             self._proxies[proxy_index])))
 
                         print(f'\nCollecting routes for {date}:')
-                        self._succeded = 0
-                        self._failed = 0
-                        self._started_at = time.perf_counter()
+                        self._stat = CollectorStat(total=len(self._codes))
                         self._routes = []
                         await self.dates_queue.join()
 
@@ -79,26 +93,26 @@ class Collector:
                         await asyncio.gather(*tasks, return_exceptions=True)
 
                         # store results in database
-                        self._db.store(date, self._routes)
+                        self._db.store(utils.Date.today(), date, self._routes)
 
     async def _worker(self, queue: asyncio.Queue, date: utils.Date,
                       proxy: str):
         while True:
             from_code, where_code = await queue.get()
             try:
-                routes = await self._request(from_code, where_code, date,
-                                             proxy)
+                routes = await self._request_routes(from_code, where_code,
+                                                    date, proxy)
                 self._routes.extend(routes)
-                self._succeded += 1
+                self._stat.succeded += 1
             except Exception:
-                self._failed += 1
+                self._stat.failed += 1
 
-            self._print_progress()
+            print(self._stat, end='\r')
             queue.task_done()
 
     @utils.async_tries(5)
-    async def _request(self, from_code: int, where_code: int, date: utils.Date,
-                       proxy: str):
+    async def _request_routes(self, from_code: int, where_code: int,
+                              date: utils.Date, proxy: str):
         params: dict[str, int | str] = {
             "layer_id": 5827,
             "dir": 1,
@@ -134,11 +148,3 @@ class Collector:
                     f'Wrong response from server: {response_json}')
 
             return response_json["tp"]
-
-    def _print_progress(self):
-        progress = (self._succeded + self._failed) / len(self._codes)
-        print(f'succeded: {self._succeded}',
-              f'failed: {self._failed}',
-              f'progress: {progress * 100:.2f}%',
-              f'elapsed: {time.perf_counter() - self._started_at:.1f} secs',
-              end='\r')

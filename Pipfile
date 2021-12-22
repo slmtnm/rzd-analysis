@@ -22,6 +22,7 @@ dataclasses-json = "*"
 aio-pika = "*"
 uvloop = "*"
 colorama = "*"
+attrs = "*"
 
 [dev-packages]
 mypy = "*"

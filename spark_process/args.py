@@ -1,8 +1,7 @@
 import argparse
 from dataclasses import dataclass
 from datetime import date
-
-from utils import str_date
+import utils
 
 
 @dataclass
@@ -27,4 +26,5 @@ def parse_args() -> Options:
                         default='rzd-analysis')
     args = parser.parse_args()
     return Options(args.master_url, args.data_dir,
-                   str_date(args.departure_date), args.type, args.appname)
+                   utils.Date.from_str(args.departure_date),
+                   args.type, args.appname)
